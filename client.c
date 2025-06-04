@@ -5,15 +5,23 @@
 #include <pthread.h>
 #include <arpa/inet.h>
 #include <sys/socket.h>
+#include <sys/select.h>
 #include <openssl/ssl.h>
 #include <openssl/err.h>
 
-#define PORT 12345
-#define BUFFER_SIZE 1024
-#define USERNAME_LEN 32
-
+#define PORT 		12345
+#define BUFFER_SIZE 	1024
+#define USERNAME_LEN 	32
+#define TIME_OUT	50
 int sockfd;
 SSL *ssl;
+
+void cleanup(SSL_CTX *ctx) {
+    SSL_shutdown(ssl);
+    SSL_free(ssl);
+    SSL_CTX_free(ctx);
+    close(sockfd);
+}
 
 void *receive_handler(void *arg) {
     char buffer[BUFFER_SIZE];
@@ -53,11 +61,9 @@ int main() {
         exit(EXIT_FAILURE);
     }
 
-    // Nếu bạn có CA để xác thực server, load CA tại đây
-    // SSL_CTX_load_verify_locations(ctx, "ca_cert.pem", NULL);
-
     if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
         perror("socket failed");
+        SSL_CTX_free(ctx);
         exit(EXIT_FAILURE);
     }
 
@@ -67,6 +73,8 @@ int main() {
 
     if (connect(sockfd, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0) {
         perror("connect failed");
+        close(sockfd);
+        SSL_CTX_free(ctx);
         exit(EXIT_FAILURE);
     }
 
@@ -75,9 +83,7 @@ int main() {
 
     if (SSL_connect(ssl) <= 0) {
         ERR_print_errors_fp(stderr);
-        close(sockfd);
-        SSL_free(ssl);
-        SSL_CTX_free(ctx);
+        cleanup(ctx);
         exit(EXIT_FAILURE);
     }
 
@@ -89,20 +95,14 @@ int main() {
     int len = SSL_read(ssl, response, sizeof(response) - 1);
     if (len <= 0) {
         printf("Server closed connection.\n");
-        SSL_shutdown(ssl);
-        SSL_free(ssl);
-        SSL_CTX_free(ctx);
-        close(sockfd);
+        cleanup(ctx);
         exit(EXIT_FAILURE);
     }
     response[len] = '\0';
 
     if (strcmp(response, "AUTH_SUCCESS") != 0) {
         printf("Login failed: %s\n", response);
-        SSL_shutdown(ssl);
-        SSL_free(ssl);
-        SSL_CTX_free(ctx);
-        close(sockfd);
+        cleanup(ctx);
         exit(EXIT_FAILURE);
     }
 
@@ -111,19 +111,35 @@ int main() {
     pthread_t recv_thread;
     pthread_create(&recv_thread, NULL, receive_handler, NULL);
 
+    fd_set readfds;
+    struct timeval timeout;
+
     while (1) {
         printf("> ");
-        if (fgets(message, sizeof(message), stdin) == NULL)
-            break;
+        fflush(stdout);
 
-        SSL_write(ssl, message, strlen(message));
+        FD_ZERO(&readfds);
+        FD_SET(STDIN_FILENO, &readfds);
+
+        timeout.tv_sec = TIME_OUT;
+        timeout.tv_usec = 0;
+
+        int activity = select(STDIN_FILENO + 1, &readfds, NULL, NULL, &timeout);
+
+        if (activity < 0) {
+            perror("select error");
+            break;
+        } else if (activity == 0) {
+            printf("\n⏰ No input in 10 seconds. Exiting...\n");
+            break;
+        }
+
+        if (fgets(message, sizeof(message), stdin) != NULL) {
+            SSL_write(ssl, message, strlen(message));
+        }
     }
 
-    SSL_shutdown(ssl);
-    SSL_free(ssl);
-    SSL_CTX_free(ctx);
-    close(sockfd);
-
+    cleanup(ctx);
     return 0;
 }
 

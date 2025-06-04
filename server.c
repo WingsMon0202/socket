@@ -110,7 +110,7 @@ void remove_client(int sockfd) {
             SSL_shutdown(clients[i]->ssl);
             SSL_free(clients[i]->ssl);
             close(clients[i]->sockfd);
-            free(clients[i]);
+            // Không free clients[i] ở đây nữa
             for (int j = i; j < client_count - 1; j++) {
                 clients[j] = clients[j + 1];
             }
@@ -131,7 +131,7 @@ void *handle_client(void *arg) {
     len = SSL_read(cli->ssl, buffer, sizeof(buffer) - 1);
     if (len <= 0) {
         remove_client(cli->sockfd);
-        free(cli);
+        free(cli); // ✅ chỉ free ở đây
         pthread_exit(NULL);
     }
     buffer[len] = '\0';
@@ -179,7 +179,7 @@ void *handle_client(void *arg) {
     save_message_to_file(message);
 
     remove_client(cli->sockfd);
-    free(cli);
+    free(cli); // ✅ Free an toàn tại đây
     pthread_exit(NULL);
 }
 
