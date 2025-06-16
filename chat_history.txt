@@ -1,0 +1,48 @@
+*** User 'lan' has joined the chat ***
+*** User 'lan' has joined the chat ***
+[lan]: hello
+[lan]: hello
+[lan]: hello 
+*** User 'wing' has joined the chat ***
+[wing]: hi
+[wing]: hi
+[wing]: hi
+*** User 'lan' has joined the chat ***
+*** User 'lan' has left the chat ***
+*** User 'lan' has joined the chat ***
+[lan]: hellp
+[lan]: j
+*** User 'wing' has joined the chat ***
+[wing]: hekkk
+*** User 'lan' has joined the chat ***
+*** User 'wing' has joined the chat ***
+[wing]: hello
+[lan]: hi
+[wing]: hi
+*** User 'lan' has joined the chat ***
+[lan]: hello
+[lan]: heo
+[lan]: hehehe
+*** User 'wing' has joined the chat ***
+[wing]: helel
+[wing]: heheh
+[wing]: hello
+*** User 'lan' has joined the chat ***
+[lan]: hello
+[lan]: hi
+*** User 'wing' has joined the chat ***
+*** User 'lan' has left the chat ***
+*** User 'lan' has joined the chat ***
+[lan]: hello
+[lan]: signal
+*** User 'lan' has joined the chat ***
+*** User 'wing' has joined the chat ***
+[wing]: hello
+[lan]: hello
+[lan]: hello
+[wing]: hello
+*** User 'mon' has joined the chat ***
+[mon]: his
+[mon]: his
+[wing]: hello
+[lan]: hello
