@@ -46,3 +46,8 @@
 [mon]: his
 [wing]: hello
 [lan]: hello
+*** User 'lan' has joined the chat ***
+[lan]: hello
+[lan]: hello
+[lan]: exit
+*** User 'lan' has left the chat ***
