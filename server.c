@@ -179,7 +179,7 @@ void *handle_client(void *arg) {
     save_message_to_file(message);
 
     remove_client(cli->sockfd);
-    free(cli); // ✅ Free an toàn tại đây
+    free(cli); // Free an toàn tại đây
     pthread_exit(NULL);
 }
 
