@@ -1,0 +1,31 @@
+version: "3.8"
+services:
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile.server
+    container_name: chat_server
+    ports:
+      - "12345:12345"
+    volumes:
+      - ./chat_data:/app   
+    networks:
+      - chatnet
+
+  client:
+    build:
+      context: .
+      dockerfile: Dockerfile.client
+    container_name: chat_client
+    stdin_open: true
+    tty: true
+    depends_on:
+      - server
+    volumes:
+      - ./chat_data:/app   
+    networks:
+      - chatnet
+
+networks:
+  chatnet:
+    driver: bridge
